@@ -120,7 +120,11 @@ class WorldStateRT(WorldState):
         self.distances = Distances(
             type=self.params.distance_type,  # Type of distances between agents
             agents=torch.zeros(
-                self.batch_dim, self.n_agents, self.n_agents, dtype=torch.float32
+                self.batch_dim,
+                self.n_agents,
+                self.n_agents,
+                device=self.device,
+                dtype=torch.float32,
             ),
             left_boundaries=torch.zeros(
                 (self.batch_dim, self.n_agents, 1 + 4),
@@ -330,9 +334,9 @@ class WorldStateRT(WorldState):
             :,
         ] = extended_points[path_id, -1, :]
 
-        self.ref_paths_agent_related.n_points_long_term[
-            env_i, agent_index
-        ] = n_points_long_term
+        self.ref_paths_agent_related.n_points_long_term[env_i, agent_index] = (
+            n_points_long_term
+        )
 
         self.ref_paths_agent_related.long_term_vec_normalized[
             env_i, agent_index, 0 : n_points_long_term - 1, :
@@ -359,9 +363,9 @@ class WorldStateRT(WorldState):
             env_i, agent_index, n_points_left_b:, :
         ] = ref_path["left_boundary_shared"][-1, :]
 
-        self.ref_paths_agent_related.n_points_left_b[
-            env_i, agent_index
-        ] = n_points_left_b
+        self.ref_paths_agent_related.n_points_left_b[env_i, agent_index] = (
+            n_points_left_b
+        )
 
         n_points_right_b = ref_path["right_boundary_shared"].shape[0]
 
@@ -373,9 +377,9 @@ class WorldStateRT(WorldState):
             env_i, agent_index, n_points_right_b:, :
         ] = ref_path["right_boundary_shared"][-1, :]
 
-        self.ref_paths_agent_related.n_points_right_b[
-            env_i, agent_index
-        ] = n_points_right_b
+        self.ref_paths_agent_related.n_points_right_b[env_i, agent_index] = (
+            n_points_right_b
+        )
 
         self.ref_paths_agent_related.entry[env_i, agent_index, 0, :] = ref_path[
             "left_boundary_shared"
