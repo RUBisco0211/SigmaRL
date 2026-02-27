@@ -779,9 +779,9 @@ class CBFQP:
             u_cbf = self.u_nominal_agent_list[self.agent_idx].flatten()
             self.num_fail += 1
             # If there is no valid solution for the optimization problem, take the original action
-            tensordict[("agents", "action")][
-                self.env_idx, self.agent_idx
-            ] = self.rl_actions_nominal_agent_list[self.agent_idx]
+            tensordict[("agents", "action")][self.env_idx, self.agent_idx] = (
+                self.rl_actions_nominal_agent_list[self.agent_idx]
+            )
         elif prob.status == cp.OPTIMAL:
             u_cbf = u_agent.value
             rl_actions_safe = self.u_to_rl_action(
