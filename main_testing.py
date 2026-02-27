@@ -14,7 +14,7 @@ from sigmarl.mappo_cavs import mappo_cavs
 
 from sigmarl.constants import SCENARIOS
 
-path = "checkpoints/your/model/folder"
+path = "outputs/tmp"
 
 try:
     path_to_json_file = next(
