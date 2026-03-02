@@ -36,7 +36,7 @@ class CBFModule(Module):
                 n_agent_inputs=env.observation_spec[observation_key].shape[-1],
                 n_agent_outputs=2 * 1,  # 2 * n_actions_per_agents
                 n_agents=self.parameters.n_agents,
-                centralised=False,  # the policies are decentralised (ie each agent will act from its observation)
+                centralized=False,  # the policies are decentralised (ie each agent will act from its observation)
                 share_params=True,
                 device=self.parameters.device,
                 depth=2,
@@ -70,7 +70,7 @@ class CBFModule(Module):
             ],  # Number of observations
             n_agent_outputs=1,  # 1 value per agent
             n_agents=self.parameters.n_agents,
-            centralised=mappo,
+            centralized=mappo,
             # If `centralised` is True (which may help overcome the non-stationary problem in MARL), each agent will use the inputs of all agents to compute its output (n_agent_inputs * n_agents will be the number of inputs for one agent). Otherwise, each agent will only use its data as input.
             share_params=True,
             # If `share_params` is True, the same MLP will be used to make the forward pass for all agents (homogeneous policies). Otherwise, each agent will use a different MLP to process its input (heterogeneous policies).
