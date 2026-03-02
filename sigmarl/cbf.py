@@ -448,7 +448,7 @@ class CBF:
                 n_agent_inputs=self.rl_policy_n_in_feature,  # n_obs_per_agent
                 n_agent_outputs=self.rl_policy_n_out_feature,  # 2 * n_actions
                 n_agents=1,
-                centralised=False,  # the policies are decentralised (ie each agent will act from its observation)
+                centralized=False,  # the policies are decentralised (ie each agent will act from its observation)
                 share_params=True,  # sharing parameters means that agents will all share the same policy, which will allow them to benefit from each other’s experiences, resulting in faster training. On the other hand, it will make them behaviorally homogenous, as they will share the same model
                 device=self.device,
                 depth=2,
@@ -697,9 +697,7 @@ class CBF:
 
         assert torch.allclose(hessian[0, 0], y_ji**2 / d**3, rtol=1e-3, atol=1e-3)
 
-        assert torch.allclose(
-            hessian[0, 1], -x_ji * y_ji / d**3, rtol=1e-3, atol=1e-3
-        )
+        assert torch.allclose(hessian[0, 1], -x_ji * y_ji / d**3, rtol=1e-3, atol=1e-3)
 
         # Detach gradients to prevent further computation and convert to numpy
         return (

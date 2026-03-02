@@ -40,7 +40,7 @@ class DecisionMakingModule(Module):
                     2 * env.action_spec.shape[-1]
                 ),  # 2 * n_actions_per_agent
                 n_agents=env.n_agents,
-                centralised=False,  # the policies are decentralised (ie each agent will act from its observation)
+                centralized=False,  # the policies are decentralised (ie each agent will act from its observation)
                 share_params=True,  # sharing parameters means that agents will all share the same policy, which will allow them to benefit from each other’s experiences, resulting in faster training. On the other hand, it will make them behaviorally homogenous, as they will share the same model
                 device=self.parameters.device,
                 depth=3,
