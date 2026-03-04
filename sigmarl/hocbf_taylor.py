@@ -16,7 +16,7 @@ import pickle
 import time
 
 
-save_dir = "checkpoints/hocbf"
+save_dir = "checkpoints/ttcbf"
 
 
 plt.rcParams.update(
