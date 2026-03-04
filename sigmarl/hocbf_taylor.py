@@ -3,6 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import os
 
 import pickle
 import numpy as np
@@ -15,6 +16,9 @@ import pickle
 import time
 
 
+save_dir = "checkpoints/hocbf"
+
+
 plt.rcParams.update(
     {
         "font.size": 16,
@@ -24,7 +28,7 @@ plt.rcParams.update(
         "ytick.labelsize": 16,
         "legend.fontsize": 16,
         "font.family": "serif",
-        "text.usetex": True,
+        "text.usetex": False,
     }
 )
 
@@ -592,9 +596,13 @@ class HOCBF:
 
         plt.tight_layout()
         fig_name = f"fig_example_class_k_hocbf"
-        plt.savefig(f"{fig_name}.pdf", format="pdf", dpi=300, bbox_inches="tight")
-        plt.savefig(f"{fig_name}.jpeg", format="jpeg", dpi=300, bbox_inches="tight")
-        print(f"Figure saved to {fig_name}.jpeg")
+        plt.savefig(
+            f"{save_dir}/{fig_name}.pdf", format="pdf", dpi=300, bbox_inches="tight"
+        )
+        plt.savefig(
+            f"{save_dir}/{fig_name}.jpeg", format="jpeg", dpi=300, bbox_inches="tight"
+        )
+        print(f"Figure saved to {save_dir}/{fig_name}.jpeg")
         plt.show()
 
         return ax
@@ -652,9 +660,13 @@ class HOCBF:
         plt.ylabel(r"CBF $h$($t$) (m$^2$)")
         plt.tight_layout()
         fig_name = f"fig_h"
-        plt.savefig(f"{fig_name}.pdf", format="pdf", dpi=300, bbox_inches="tight")
-        plt.savefig(f"{fig_name}.jpeg", format="jpeg", dpi=300, bbox_inches="tight")
-        print(f"Figure saved to {fig_name}.jpeg")
+        plt.savefig(
+            f"{save_dir}/{fig_name}.pdf", format="pdf", dpi=300, bbox_inches="tight"
+        )
+        plt.savefig(
+            f"{save_dir}/{fig_name}.jpeg", format="jpeg", dpi=300, bbox_inches="tight"
+        )
+        print(f"Figure saved to {save_dir}/{fig_name}.jpeg")
         plt.show()
 
         return fig, ax
@@ -831,6 +843,8 @@ def run_experiment_multi_parameters(
     data_name="experiment_data.pkl",
     is_parallel_workers=True,
 ):
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
     """Runs all experiments in parallel."""
     total_experiments = (
         len(DT_list)
@@ -891,7 +905,7 @@ def run_experiment_multi_parameters(
     print(
         f"Average QP solve duration: {np.mean(data['qp_solve_duration']):.6f} seconds"
     )
-    with open(data_name, "wb") as f:
+    with open(f"{save_dir}/{data_name}", "wb") as f:
         pickle.dump(data, f)
 
     print("Experiments completed and results saved.")
@@ -899,7 +913,7 @@ def run_experiment_multi_parameters(
 
 def plot_heatmap(data_name, fig_name, lambda_1_list, lambda_2_list):
     # Load data from the pickle file
-    with open(data_name, "rb") as f:
+    with open(f"{save_dir}/{data_name}", "rb") as f:
         loaded_data = pickle.load(f)
     data = loaded_data["avg_x_speed_list"]
 
@@ -1000,9 +1014,13 @@ def plot_heatmap(data_name, fig_name, lambda_1_list, lambda_2_list):
         ax.set_ylabel(r"$\lambda_2$")
 
     plt.tight_layout()
-    plt.savefig(f"{fig_name}.pdf", format="pdf", dpi=300, bbox_inches="tight")
-    plt.savefig(f"{fig_name}.jpeg", format="jpeg", dpi=300, bbox_inches="tight")
-    print(f"Figure saved to {fig_name}.jpeg")
+    plt.savefig(
+        f"{save_dir}/{fig_name}.pdf", format="pdf", dpi=300, bbox_inches="tight"
+    )
+    plt.savefig(
+        f"{save_dir}/{fig_name}.jpeg", format="jpeg", dpi=300, bbox_inches="tight"
+    )
+    print(f"Figure saved to {save_dir}/{fig_name}.jpeg")
 
     # Show the plot
     plt.show()
@@ -1022,7 +1040,7 @@ def plot_footprint(
     is_example=False,
 ):
     # Load data from the pickle file
-    with open(data_name, "rb") as f:
+    with open(f"{save_dir}/{data_name}", "rb") as f:
         loaded_data = pickle.load(f)
 
     avg_x_speed_list = loaded_data["avg_x_speed_list"]
@@ -1179,9 +1197,13 @@ def plot_footprint(
         fig_name = f"fig_footprint_{approach.lower()}"
 
     plt.tight_layout()
-    plt.savefig(f"{fig_name}.pdf", format="pdf", dpi=300, bbox_inches="tight")
-    plt.savefig(f"{fig_name}.jpeg", format="jpeg", dpi=300, bbox_inches="tight")
-    print(f"Figure saved to {fig_name}.jpeg")
+    plt.savefig(
+        f"{save_dir}/{fig_name}.pdf", format="pdf", dpi=300, bbox_inches="tight"
+    )
+    plt.savefig(
+        f"{save_dir}/{fig_name}.jpeg", format="jpeg", dpi=300, bbox_inches="tight"
+    )
+    print(f"Figure saved to {save_dir}/{fig_name}.jpeg")
 
     plt.show()
 
@@ -1200,7 +1222,7 @@ def plot_h(
 ):
 
     # Load data from the pickle file
-    with open(data_name, "rb") as f:
+    with open(f"{save_dir}/{data_name}", "rb") as f:
         loaded_data = pickle.load(f)
 
     avg_x_speed_list = loaded_data["avg_x_speed_list"]
@@ -1316,9 +1338,13 @@ def plot_h(
 
     plt.tight_layout()
     fig_name = f"fig_h_{approach.lower()}"
-    plt.savefig(f"{fig_name}.pdf", format="pdf", dpi=300, bbox_inches="tight")
-    plt.savefig(f"{fig_name}.jpeg", format="jpeg", dpi=300, bbox_inches="tight")
-    print(f"Figure saved to {fig_name}.jpeg")
+    plt.savefig(
+        f"{save_dir}/{fig_name}.pdf", format="pdf", dpi=300, bbox_inches="tight"
+    )
+    plt.savefig(
+        f"{save_dir}/{fig_name}.jpeg", format="jpeg", dpi=300, bbox_inches="tight"
+    )
+    print(f"Figure saved to {save_dir}/{fig_name}.jpeg")
 
     plt.show()
 
@@ -1358,6 +1384,7 @@ if __name__ == "__main__":
         input("Do you want to use parallel workers? (y/n): ").lower() == "y"
     )
 
+    save_dir += f"/{data_name.split('.')[0]}"
     run_experiment_multi_parameters(
         DT_list=DT_list,
         relative_degree_list=relative_degree_list,
