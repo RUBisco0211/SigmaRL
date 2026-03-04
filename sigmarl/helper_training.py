@@ -513,10 +513,8 @@ class SyncDataCollectorCustom(SyncDataCollector):
 
         (
             self.policy,
-            self.device,
             self.get_weights_fn,
         ) = self._get_policy_and_device(
-        (self.policy, self.get_weights_fn,) = self._get_policy_and_device(
             policy=policy,
             observation_spec=self.env.observation_spec,
         )
@@ -1131,6 +1129,23 @@ class Parameters:
         is_using_opponent_modeling: bool = False,  # Whether to use opponent modeling to predict the actions of other agents
         is_using_prioritized_marl: bool = False,  # Whether to use prioritized MARL and action propagation.
         prioritization_method: str = "marl",  # Which method to use for generating priority ranks (options: {"marl", "random"}). Applicable only for prioritized MARL scenarios.
+        is_communication_noise: str = False,  # Whether to inject communication noise to propagated actions
+        communication_noise_level: float = 0.1,  # Defines the variance of the normal distribution modeling the noise.
+        is_using_cbf: bool = False,  # Whether to use Control Barrier Function (CBF)
+        is_using_centralized_cbf: bool = False,  # Whether to use centralized solving for CBF-constrained MARL
+        experiment_type: str = "simulation",  # One of {"simulation", "lab"}. If you only use simulation, you do not need to worry about "lab".
+        is_obs_steering: bool = False,  # Whether to observe the steering angle of other agents
+        predefined_ref_path_idx: list[
+            int
+        ] = None,  # A list of integers specify the index of the predefined reference path for each. They will be used when initializing/resetting the agents. Set to None to use a randomly selected ones.
+        init_state: list[
+            float
+        ] = None,  # Initial state of the agents in the form of [x, y, rot, speed]. If None, the initial state will be randomly sampled.
+        random_seed: int = 0,  # Random seed,
+        is_using_pseudo_distance: bool = False,  # Whether to use pseudo distance
+        n_circles_approximate_vehicle: int = 3,  # Number of circles to approximate the vehicle shape
+        lane_width=0.3,  # For custom scenarios only
+        reset_agent_fixed_duration: int = 0,  # Reset agents after fixed duration in seconds. Set to 0 if not used.
     ):
 
         self.n_agents = n_agents
@@ -1168,7 +1183,6 @@ class Parameters:
         self.is_continue_train = is_continue_train
 
         self.n_points_short_term = n_points_short_term
-        self.n_points_nearing_boundary = n_points_nearing_boundary
         # Observation
         self.is_partial_observation = is_partial_observation
         self.n_steps_stored = n_steps_stored
@@ -1666,9 +1680,9 @@ def prioritized_ap_policy(
             are_observable_higher_priority_agents = torch.isin(
                 current_turn_agent_neighbors, higher_priority_agents
             )
-            observable_higher_priority_agents[env][
-                agent_idx
-            ] = current_turn_agent_neighbors[are_observable_higher_priority_agents]
+            observable_higher_priority_agents[env][agent_idx] = (
+                current_turn_agent_neighbors[are_observable_higher_priority_agents]
+            )
 
             # Propagate the collected actions into the current agent's observation
             if len(actions_so_far) > 0:
@@ -1916,13 +1930,13 @@ def cbf_constrained_decentralized_policy_multi_agents(
             are_observable_higher_priority_agents = torch.isin(
                 current_turn_agent_neighbors, higher_priority_agents
             )
-            observable_higher_priority_agents[env][
-                agent_idx
-            ] = current_turn_agent_neighbors[are_observable_higher_priority_agents]
+            observable_higher_priority_agents[env][agent_idx] = (
+                current_turn_agent_neighbors[are_observable_higher_priority_agents]
+            )
 
-            mask_higher_priority_agents[
-                env, agent_idx, :
-            ] = are_observable_higher_priority_agents
+            mask_higher_priority_agents[env, agent_idx, :] = (
+                are_observable_higher_priority_agents
+            )
 
             # Propagate the collected actions into the current agent's observation
             if len(actions_so_far) > 0:
