@@ -106,6 +106,10 @@ class CBF:
         """
         # General
         self.device = torch.device("cpu")
+
+        self.save_dir = kwargs.get(
+            "save_dir", "checkpoints/ecc25"
+        )  # Directory to save evaluation results
         self.dt = 0.05  # Sample time (50 ms)
         self.length = AGENTS["length"]  # Length of each rectangle (m)
         self.width = AGENTS["width"]  # Width of each rectangle (m)
@@ -2934,7 +2938,7 @@ class CBF:
                     f"Mean: {(max_deviation_i + max_deviation_j) / 2:.4f} m ({((max_deviation_i + max_deviation_j) / 2 / self.width * 100):.2f}%)"
                 )
                 print(print_str)
-                file_name = f"eval_cbf_bypassing_{self.sm_type}.txt"
+                file_name = f"{self.save_dir}/eval_cbf_bypassing_{self.sm_type}.txt"
                 with open(file_name, "w") as file:
                     file.write(print_str + "\n")
                     file.write(opt_time_str + "\n")
@@ -2944,7 +2948,7 @@ class CBF:
                 )
             else:
                 # Save optimization time to file
-                file_name = f"eval_cbf_overtaking_{self.sm_type}.txt"
+                file_name = f"{self.save_dir}/eval_cbf_overtaking_{self.sm_type}.txt"
                 with open(file_name, "w") as file:
                     file.write(opt_time_str + "\n")
                 print(
@@ -2956,7 +2960,9 @@ class CBF:
         plt.tight_layout(rect=[0, 0, 1, 1])
 
         if self.is_save_eval_result:
-            fig_name = f"eva_cbf_{self.scenario_type}_{self.sm_type}.pdf"
+            fig_name = (
+                f"{self.save_dir}/eval_cbf_{self.scenario_type}_{self.sm_type}.pdf"
+            )
             plt.savefig(fig_name, bbox_inches="tight", dpi=450)
             print(
                 colored(f"A figure has been saved to ", "black"),
