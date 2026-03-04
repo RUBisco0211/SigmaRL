@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
+from typing import OrderedDict
 import numpy as np
 from termcolor import cprint, colored
 import torch
@@ -495,7 +496,26 @@ class CBF:
         )  # we'll need the log-prob for the PPO loss
 
         if os.path.exists(self.rl_policy_path):
-            policy.load_state_dict(torch.load(self.rl_policy_path, weights_only=True))
+            state_dict: OrderedDict[str, torch.Tensor] = torch.load(
+                self.rl_policy_path, weights_only=True
+            )
+
+            new_state_dict = OrderedDict()
+
+            for key, value in state_dict.items():
+                print(f"Key: {key}; Value shape: {value.shape}")
+                k = (
+                    key.replace("agent_networks.0", "params")
+                    if "agent_networks.0" in key
+                    else key
+                )  # Adjust key if necessary
+                new_state_dict[k] = value
+            new_state_dict["module.0.module.0.params.__batch_size"] = torch.Size([])
+            new_state_dict["module.0.module.0.params.__device"] = None
+
+            policy.load_state_dict(
+                new_state_dict, strict=False
+            )  # Load the state dict into the policy
         else:
             raise FileNotFoundError(
                 f"Model file at {self.rl_policy_path} not found. See README.md for more details regarding where you can download the pre-trained model."
