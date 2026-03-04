@@ -618,22 +618,22 @@ def run_simulations(
                         collision_rate,
                     ) = evaluation.load_pefromance_metrics()
 
-                    mean_computation_time_rl_list[
-                        i_cbf, i_scenario, i_cir, i_seed
-                    ] = mean_rl
-                    mean_computation_time_cbf_list[
-                        i_cbf, i_scenario, i_cir, i_seed
-                    ] = mean_cbf
+                    mean_computation_time_rl_list[i_cbf, i_scenario, i_cir, i_seed] = (
+                        mean_rl
+                    )
+                    mean_computation_time_cbf_list[i_cbf, i_scenario, i_cir, i_seed] = (
+                        mean_cbf
+                    )
                     mean_computation_time_pseudo_dis_list[
                         i_cbf, i_scenario, i_cir, i_seed
                     ] = mean_pseudo_dis
                     mean_speed_list[i_cbf, i_scenario, i_cir, i_seed] = mean_speed
-                    infeasibility_rate_list[
-                        i_cbf, i_scenario, i_cir, i_seed
-                    ] = infeasibility_rate
-                    collision_count_list[
-                        i_cbf, i_scenario, i_cir, i_seed
-                    ] = collision_count
+                    infeasibility_rate_list[i_cbf, i_scenario, i_cir, i_seed] = (
+                        infeasibility_rate
+                    )
+                    collision_count_list[i_cbf, i_scenario, i_cir, i_seed] = (
+                        collision_count
+                    )
 
                     # Close all pyglet windows
                     for window in list(pyglet.app.windows):
@@ -899,6 +899,9 @@ if __name__ == "__main__":
     print("1. Computationally efficiency")
     print("2. Safety")
     user_choice = int(input("Enter your choice: "))
+    policy_path += {1: "/computationally_efficiency", 2: "/safety"}[user_choice]
+    if not os.path.exists(policy_path):
+        os.makedirs(policy_path)
     if user_choice == 1:
         is_using_cbfs = [True]
         random_seeds = [1]
