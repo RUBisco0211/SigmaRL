@@ -273,9 +273,11 @@ class Evaluation:
                         max_steps=self.parameters.max_steps - 1,
                         policy=decision_making_module.policy,
                         priority_module=priority_module,
-                        callback=(lambda env, _: env.render(mode="human"))
-                        if self.parameters.num_vmas_envs == 1
-                        else None,  # mode should be one of {"human", "rgb_array"}
+                        callback=(
+                            (lambda env, _: env.render(mode="human"))
+                            if self.parameters.num_vmas_envs == 1
+                            else None
+                        ),  # mode should be one of {"human", "rgb_array"}
                         auto_cast_to_device=True,
                         break_when_any_done=False,
                         is_save_simulation_video=False,
@@ -601,30 +603,36 @@ class Evaluation:
                 colored(f"{path_save_eval_fig}", "blue"),
             )
 
+    # IMPORTANT: 评估指标
     def _init_eva_matrices(self):
         """
         Initialize evaluation matrices.
         """
+        # 平均速度
         self.average_speed = torch.zeros(
             (self.num_models, self.parameters.num_vmas_envs),
             device=self.parameters.device,
             dtype=torch.float32,
         )
+        # 与其他agent的碰撞率
         self.collision_rate_with_agents = torch.zeros(
             (self.num_models, self.parameters.num_vmas_envs),
             device=self.parameters.device,
             dtype=torch.float32,
         )
+        # 与车道边界的碰撞率
         self.collision_rate_with_lanelets = torch.zeros(
             (self.num_models, self.parameters.num_vmas_envs),
             device=self.parameters.device,
             dtype=torch.float32,
         )
+        # 与参考轨迹的距离
         self.distance_ref_average = torch.zeros(
             (self.num_models, self.parameters.num_vmas_envs),
             device=self.parameters.device,
             dtype=torch.float32,
         )
+        # 奖励
         self.episode_reward = torch.zeros(
             (self.num_models, self.parameters.n_iters),
             device=self.parameters.device,

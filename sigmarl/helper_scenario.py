@@ -1053,9 +1053,9 @@ def get_distances_between_agents(
                 # is_overlapping = torch.all(is_projection_overlapping, dim=1)
                 # distance_ji[is_overlapping] = 0  # Rectangles are overlapping
 
-                mutual_distances[
-                    :, i, j
-                ] = distance_ji  # The smaller one among the distance from rectangle i to j and the distance from rectangle j to i is define as the distance between two rectangles
+                mutual_distances[:, i, j] = (
+                    distance_ji  # The smaller one among the distance from rectangle i to j and the distance from rectangle j to i is define as the distance between two rectangles
+                )
                 mutual_distances[:, j, i] = distance_ji
 
     if is_set_diagonal:
@@ -1159,6 +1159,7 @@ def remove_overlapping_points(polyline: torch.Tensor, threshold: float = 1e-4):
     return polyline[~remove]
 
 
+# IMPORTANT: ego_view 情况下 把全局坐标转换为以当前 agent 为原点的坐标系
 def transform_from_global_to_local_coordinate(
     pos_i: torch.Tensor, pos_j: torch.Tensor, rot_i
 ):
@@ -1179,10 +1180,12 @@ def transform_from_global_to_local_coordinate(
         else:
             pos_j = pos_j.unsqueeze(0)
 
+    # 相对速度
     pos_vec = pos_j - pos_i_extended
     pos_vec_abs = pos_vec.norm(dim=2)
+    # 相对速度方向角
     rot_rel = torch.atan2(pos_vec[:, :, 1], pos_vec[:, :, 0]) - rot_i
-
+    # 相对位置
     pos_rel = torch.stack(
         (
             torch.cos(rot_rel) * pos_vec_abs,

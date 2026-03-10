@@ -831,9 +831,10 @@ class ObservationProviderRT(ObservationProvider):
                 )
             ),
             obs_vel_other_agents_flat,  # [others] velocities
-            obs_steering_other_agents_flat
-            if self.params.is_obs_steering
-            else None,  # [others] steering angles
+            (
+                obs_steering_other_agents_flat if self.params.is_obs_steering else None
+            ),  # [others] steering angles
+            # IMPORTANT: 观测与其他 agent 的距离与否
             (
                 obs_distance_other_agents_flat
                 if self.params.is_observe_distance_to_agents
