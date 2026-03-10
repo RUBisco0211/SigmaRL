@@ -2050,6 +2050,7 @@ def cbf_constrained_centralized_policy(
 
 
 def is_latex_available():
+    return False
     try:
         # Try running `latex -version` to check if it's installed
         subprocess.run(
