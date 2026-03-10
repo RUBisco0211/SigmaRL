@@ -817,6 +817,7 @@ class ObservationProviderRT(ObservationProvider):
 
         # Observation of other agents
         obs_others_list = [
+            # IMPORTANT: 观测其他 agent 的顶点，或是使用中心点+转向角+长宽
             (
                 obs_vertices_other_agents_flat
                 if self.params.is_observe_vertices
