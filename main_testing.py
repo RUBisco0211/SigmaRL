@@ -13,7 +13,7 @@ from utilities.mappo_cavs import mappo_cavs
 
 from utilities.constants import SCENARIOS
 
-path = "outputs/M2 (Baseline)/"
+path = "outputs/sigmarl/"
 
 try:
     path_to_json_file = next(
