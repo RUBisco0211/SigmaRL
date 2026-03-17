@@ -13,7 +13,7 @@ from utilities.mappo_cavs import mappo_cavs
 
 from utilities.constants import SCENARIOS
 
-path = "outputs/M2 (Baseline)/"
+path = "outputs/xp_marl/"
 
 try:
     path_to_json_file = next(
@@ -28,7 +28,7 @@ try:
         # Adjust parameters
         parameters.is_testing_mode = True
         parameters.is_real_time_rendering = True
-        parameters.is_save_eval_results = False
+        parameters.is_save_eval_results = True
         parameters.is_load_model = True
         parameters.is_load_final_model = False
         parameters.is_load_out_td = False
@@ -38,14 +38,12 @@ try:
         else:
             parameters.num_vmas_envs = 1
 
-        parameters.scenario_type = (
-            "CPM_entire"  # on_ramp_1, roundabout_1, intersection_1/2/3, CPM_mixed
-        )
+        parameters.scenario_type = "CPM_mixed"  # CPM_mixed", "CPM_entire" on_ramp_1, roundabout_1, intersection_1/2/3, CPM_mixed
         parameters.n_agents = SCENARIOS[parameters.scenario_type]["n_agents"]
 
-        parameters.is_save_simulation_video = False
-        parameters.is_visualize_short_term_path = False
-        parameters.is_visualize_lane_boundary = False
+        parameters.is_save_simulation_video = True
+        parameters.is_visualize_short_term_path = True
+        parameters.is_visualize_lane_boundary = True
         parameters.is_visualize_extra_info = True
 
         env, policy, priority_module, parameters = mappo_cavs(parameters=parameters)
@@ -58,8 +56,8 @@ try:
                 mode="rgb_array", visualize_when_rgb=True
             ),  # mode \in {"human", "rgb_array"}
             auto_cast_to_device=True,
-            break_when_any_done=False,
-            is_save_simulation_video=parameters.is_save_simulation_video,
+            break_when_any_done=True,
+            is_save_simulation_video=True,
         )
         save_video(f"{path}video", frame_list, fps=1 / parameters.dt)
 except StopIteration:
