@@ -23,7 +23,7 @@
     "is_continue_train": false,
     "model_name": "",
     "episode_reward_intermediate": -1e3,
-    "where_to_save": "outputs/xp_marl/",
+    "where_to_save": "outputs/xp_marl_1/",
     "is_partial_observation": true,
     "n_steps_stored": 10,
     "n_points_short_term": 3,
@@ -42,7 +42,7 @@
     "is_observe_distance_to_center_line": true,
     "is_apply_mask": false,
     "is_add_noise": false,
-    "is_observe_ref_path_other_agents": false,
+    "is_observe_ref_path_other_agents": true,
     "is_using_opponent_modeling": false,
     "is_using_prioritized_marl": true,
     "prioritization_method": "marl"

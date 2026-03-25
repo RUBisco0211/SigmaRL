@@ -13,7 +13,7 @@ from utilities.mappo_cavs import mappo_cavs
 
 from utilities.constants import SCENARIOS
 
-path = "outputs/xp_marl/"
+path = "checkpoints/icra25/M1 (XP-MARL)/"
 
 try:
     path_to_json_file = next(
@@ -38,7 +38,7 @@ try:
         else:
             parameters.num_vmas_envs = 1
 
-        parameters.scenario_type = "CPM_mixed"  # CPM_mixed", "CPM_entire" on_ramp_1, roundabout_1, intersection_1/2/3, CPM_mixed
+        parameters.scenario_type = "CPM_entire"  # CPM_mixed", "CPM_entire" on_ramp_1, roundabout_1, intersection_1/2/3, CPM_mixed
         parameters.n_agents = SCENARIOS[parameters.scenario_type]["n_agents"]
 
         parameters.is_save_simulation_video = True
