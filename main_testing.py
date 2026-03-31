@@ -14,7 +14,7 @@ from sigmarl.ppo_goal_reaching import ppo_goal_reaching
 
 from sigmarl.constants import SCENARIOS
 
-path = "checkpoints/itsc24/M0 (our)"
+path = "outputs/itsc25_retrain/"
 
 try:
     path_to_json_file = next(
@@ -45,7 +45,7 @@ try:
 
         parameters.is_save_simulation_video = False
         parameters.is_visualize_short_term_path = True
-        parameters.is_visualize_lane_boundary = False
+        parameters.is_visualize_lane_boundary = True
         parameters.is_visualize_extra_info = True
 
         if parameters.scenario_type.lower() == "goal_reaching_1":
