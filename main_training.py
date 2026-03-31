@@ -15,7 +15,7 @@ parameters = Parameters.from_json(config_file)
 # Set parameters
 parameters.scenario_type = scenario_type
 parameters.n_agents = SCENARIOS[parameters.scenario_type]["n_agents"]
-parameters.where_to_save = "outputs/tmp/"
+parameters.where_to_save = "outputs/ttcbf/"
 
 if parameters.scenario_type.lower() == "goal_reaching_1":
     env, policy, priority_module, parameters = ppo_goal_reaching(parameters=parameters)
