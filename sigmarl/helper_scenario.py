@@ -960,7 +960,9 @@ def get_distances_between_agents(
         )
 
         # Calculate the normal axes of the four edges of each rectangle (Note that each rectangle has two normal axes)
+        # IMPORTANT: 提取两个轴向量，归一化
         axes_all = torch.diff(data[:, :, 0:3, :], dim=2)
+        # 顶点x,y坐标归一化
         axes_norm_all = axes_all / torch.norm(axes_all, dim=-1).unsqueeze(
             -1
         )  # Normalize
@@ -1066,6 +1068,7 @@ def get_distances_between_agents(
     return mutual_distances
 
 
+# IMPORTANT: 求两个矩形框交集
 def interX(L1, L2, is_return_points=False):
     """Calculate the intersections of batches of curves.
         Adapted from https://www.mathworks.com/matlabcentral/fileexchange/22441-curve-intersections

@@ -26,7 +26,7 @@ random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
 
-
+# IMPORTANT: SafetyMarginEstimator SME 用于估计可微 d_mtv 的神经网络
 class DistancePredictor(nn.Module):
     """Neural network model for predicting safety margin between rectangles."""
 
@@ -61,6 +61,7 @@ class DistancePredictor(nn.Module):
         return self.model(x)
 
 
+# IMPORTANT: 用于近似 d_mtv 的神经网络（源 mtv 不可微），用 d_mtv 作为训练 label
 class SafetyMarginEstimatorModule:
     """Using neural network to predict safety margin between two car-like robots modeled by rectangles."""
 
@@ -178,6 +179,7 @@ class SafetyMarginEstimatorModule:
 
         return torch.tensor(global_vertices, dtype=torch.float32)
 
+    # IMPORTANT: 使用 mtv 方法生成训练数据（原数据不可微）
     def generate_training_data(self):
         """
         Generate training data for the distance prediction model.
@@ -206,6 +208,7 @@ class SafetyMarginEstimatorModule:
             )
         )  # Shape: [num_samples, 4, 2]
 
+        # IMPORTANT: 矩形顶点
         rect2_vertices = self.get_rectangle_vertices_batch(
             X2, Y2, H2
         )  # Shape: [num_samples, 4, 2]
@@ -217,6 +220,7 @@ class SafetyMarginEstimatorModule:
 
         # Compute distances in a vectorized manner
         # get_distances_between_agents expects [batch_size, n_agents, 4, 2]
+        # IMPORTANT: 两车之间的 mtv，作为训练 label
         distances = get_distances_between_agents(
             vertices, distance_type="mtv", is_set_diagonal=False
         )[
@@ -661,7 +665,7 @@ class SafetyMarginEstimatorModule:
         )
         plt.show()
 
-
+# IMPORTANT: 训练 SafetyMarginEstimator 模型
 def main(load_model_flag, is_run_testing, path_nn):
     """
     Main function to train or load a model and test its performance.

@@ -622,6 +622,7 @@ class CBF:
                 )
 
             else:
+                # IMPORTANT: 若二者距离超出一定范围，则 fallback 到 c2c 方法
                 # If the surrounding objective is outside the ranges, using c2c-based safety margin, which does not consider headings, to estimate safety margin.
                 # This is allowable since the objective if far and the heading information is unessential.
                 sm, grad, hessian = self.c2c_based_sm(
@@ -730,6 +731,7 @@ class CBF:
             hessian.detach().numpy(),
         )
 
+    # IMPORTANT: 基于 mtv 的安全距离
     def mtv_based_sm(self, x_ji, y_ji, psi_ji):
         """
         Minimum Translation Vector (MTV)-based safety margin.
@@ -795,6 +797,7 @@ class CBF:
 
         return sm_predicted, grad_sm_predicted, hessian_predicted
 
+    # IMPORTANT: 计算高阶 CBF 条件 （相对度为2）
     def compute_cbf_conditions(
         self, dstate_time, ddstate_time, sm, grad_sm, hessian_sm
     ):
@@ -802,26 +805,37 @@ class CBF:
         Compute the first and second order Control Barrier Function (CBF) conditions.
 
         Args:
-            grad_sm (np.ndarray): Gradient of sm w.r.t inputs [dsm_dxji, dsm_dyji, dsm_dpsiji].
+            grad_sm (np.ndarray): Gradient of sm w.r.t inputs [dsm_dx_ji, dsm_dy_ji, dsm_dpsi_ji].
             state_derivatives_i (torch.Tensor): Derivatives of state_i [dx_i, dy_i, dpsi_i, dv_i, ddelta_i].
             state_derivatives_j (torch.Tensor): Derivatives of state_j [dx_j, dy_j, dpsi_j, dv_j, ddelta_j].
 
         Returns:
             tuple: h, dot_h, ddot_h, cbf_condition_1, cbf_condition_2
         """
+
+        # IMPORTANT:
+        # dstate_time: dx / dt
+        # ddstate_time: d^2 x / d t^2
+        # sm: h
+        # grad_sm: dh / dx
+        # hessian_sm: d^2 h / d x^2
+
         if self.sm_type.lower() == "mtv":
+            # IMPORTANT: h_MTV(xji) = hθ(xji) − e_max. 安全裕度
             h = sm - self.SME.error_upper_bound
         elif self.sm_type.lower() == "c2c":
             h = sm
         elif self.sm_type.lower() == "grid":
             h = sm
 
+        # h 对 t 的一二阶导
         # Compute dot_h
         dot_h = grad_sm @ dstate_time
 
         # Compute ddot_h
         ddot_h = grad_sm @ ddstate_time + dstate_time.T @ hessian_sm @ dstate_time
 
+        # 一、二阶 cbf 条件
         # First-order CBF condition
         cbf_condition_1 = dot_h + self.alpha_cbf * h
 
@@ -1156,10 +1170,11 @@ class CBF:
             # Update flags such as lane, overtaking, obstructing, etc., for the overtaking scenario
             self.update_flags_prior()
 
+        # IMPORTANT: 车辆 i 的标称控制模块，根据当前状态和参考路径构造 RL 观测，调用预训练策略得到速度/转角，再转换为底层控制量 [acceleration, steering_rate]。
         # RL actions for agent i as its nominal actions
         obs_i, self.ref_points_i, self.ref_points_ego_view_i = self.observation(
             self.state_i,
-            self.list_state_i[0][0:2],
+            self.list_state_i[0][0:2],  # (position_x, position_y, heading)
             self.goal_i.clone(),
             agent_idx=0,
         )
@@ -1173,14 +1188,17 @@ class CBF:
             .detach()
         )  # Speed and steering
 
+        # IMPORTANT: RL action 转换为标称控制输入
+        # state = (position_x, position_y, heading, speed, steering)
         u_nominal_i = self.rl_acrion_to_u(
             self.rl_actions_i, self.state_i[3], self.state_i[4]
         )  # Acceleration and steering rate
 
+        # IMPORTANT: 车辆 j 的标称控制输入，与车辆 i 类似地生成标称动作
         # RL actions for agent j as its nominal actions
         obs_j, self.ref_points_j, self.ref_points_ego_view_j = self.observation(
             self.state_j,
-            self.list_state_j[0][0:2],
+            self.list_state_j[0][0:2],  # (position_x, position_y, heading)
             self.goal_j.clone(),
             agent_idx=1,
         )
@@ -1207,6 +1225,7 @@ class CBF:
         else:
             u_j = cp.Variable(2)
 
+        # IMPORTANT: 使用相对动力学计算 dx / dt, d^2 x / d t^2
         # State derivative to time in global coordinate system
         (
             dstate_time_ji,
@@ -1215,21 +1234,25 @@ class CBF:
             ddstate_time_ij,
         ) = self.compute_state_time_derivatives(u_i, u_j)
 
+        # IMPORTANT: 相对位置和相对转向角计算，将状态转换到自车坐标系下
         # Compute relative poses between vehicles i and j in ego coordinate system
         x_ji, y_ji, psi_ji, _ = self.compute_relative_poses(
-            self.state_i[0],
-            self.state_i[1],
-            self.state_i[2],
-            self.state_j[0],
-            self.state_j[1],
-            self.state_j[2],
+            self.state_i[0],  # position_x_i
+            self.state_i[1],  # position_y_i
+            self.state_i[2],  # heading_i
+            self.state_j[0],  # position_x_j
+            self.state_j[1],  # position_y_j
+            self.state_j[2],  # heading_j
             self.sm_type,
         )
+
+        # IMPORTANT: SafetyMainginEstomator 预测安全距离、梯度、Hessian矩阵（近似 mtv 方法得到的 d_mtv）
         # Estimate safety margin and gradients
         sm_ji, grad_sm_ji, hessian_sm_ji = self.estimate_safety_margin(
             x_ji, y_ji, psi_ji
         )
 
+        # IMPORTANT: 计算一二阶 CBF 条件
         # Compute CBF conditions for the optimization problem
         (
             h_ji,
@@ -1398,6 +1421,7 @@ class CBF:
                 self.dt,
             )
 
+        # 以下根据场景设定优化目标和约束
         if self.scenario_type.lower() == "overtaking":
             # Objective: Minimize weighted squared deviation from nominal control inputs
             # and the slack variable to ensure it remains small
@@ -1507,6 +1531,8 @@ class CBF:
                     s_h_boundary_bottom_j <= default_boundary_d_offset,
                 ]
 
+        # IMPORTANT: Safety Filter 求解，求解 CBF-QP 得到最接近标称动作的安全控制
+        # 若求解失败则回退到标称动作
         # Solve QP to get optimal control inputs for vehicle i
         # Formulate and solve the QP with custom solver settings
         prob = cp.Problem(objective, constraints)
@@ -1530,6 +1556,7 @@ class CBF:
         if self.scenario_type.lower() == "overtaking":
             if prob.status != cp.OPTIMAL:
                 print(f"Warning: QP not solved optimally. Status: {prob.status}")
+                # 达不到最优解，回退到标称控制输入
                 u_i_opt = u_nominal_i
             else:
                 u_i_opt = u_i.value
@@ -1537,6 +1564,7 @@ class CBF:
         else:
             if prob.status != cp.OPTIMAL:
                 print(f"Warning: QP not solved optimally. Status: {prob.status}")
+                # 达不到最优解，回退到标称控制输入
                 u_i_opt = u_nominal_i
                 u_j_opt = u_nominal_j
             else:
@@ -1550,6 +1578,7 @@ class CBF:
             s_h_veh_opt = 0
         self.list_s_h_veh.append(s_h_veh_opt)
 
+        # IMPORTANT: 求解后安全评估模块，用最终采用的控制重新计算 CBF 相关量，便于后续记录、可视化和安全性验证。
         # Recompute CBF conditions with actual control actions
         (
             dstate_time_ji_opt,
