@@ -80,6 +80,7 @@ class HOCBF:
 
         self.ra = 1.0  # agent radius
         self.ro = 2.0  # obstacle radius
+        # IMPORTANT: agent 半径和障碍物半径之和平方
         self.radii_sqr = (self.ra + self.ro) ** 2
 
         self.u_x_nominal = 5.0  # Nominal control input
@@ -240,7 +241,7 @@ class HOCBF:
                     if self.approach.lower() == "hocbf":
                         cbf_cond = d_h + self.lambda_1 * h
                     elif self.approach.lower() == "taylor":
-                        # First order Taylor approximation
+                        # IMPORTANT: First order Taylor approximation
                         cbf_cond = self.lambda_1 * h + d_h * self.dt
                     # Predict the next speed
                     v_x_next_predict = u_x_var  # Control input is speed
@@ -253,16 +254,20 @@ class HOCBF:
                     # u_var <= v_max
                 ]
 
+            # IMPORTANT: 论文中的 ttcbf 方法，相对度为 2
             elif self.relative_degree == 2:  # Acceleration as control input
+                # h = (x - x_obs)^2 + (y - y_obs)^2 - (r + r_obs)^2
                 h = (
                     (p_x_cur - self.x_obs) ** 2
                     + (p_y_cur - self.y_obs) ** 2
                     - self.radii_sqr
                 )
+                # dot_h = 2 * (x - x_obs) * v_x + 2 * (y - y_obs) * v_y
                 d_h = (
                     2 * (p_x_cur - self.x_obs) * v_x_cur
                     + 2 * (p_y_cur - self.y_obs) * v_y_cur
                 )
+                # dot2_h = 2 * [(dot_x)^2 + (x - x_obs) * u_x] + 2 * [(dot_y)^2 + (y - y_obs) * u_y]
                 dd_h = 2 * (v_x_cur**2 + (p_x_cur - self.x_obs) * u_x_var) + 2 * (
                     v_y_cur**2 + (p_y_cur - self.y_obs) * u_y_var
                 )
@@ -275,7 +280,8 @@ class HOCBF:
                         + self.lambda_1 * self.lambda_2 * h
                     )
                 elif self.approach.lower() == "taylor":
-                    # Second order Taylor approximation
+                    # IMPORTANT: Second order Taylor approximation
+                    # 公式 24(b)
                     cbf_cond = (
                         self.lambda_1 * h + d_h * self.dt + 1 / 2 * dd_h * self.dt**2
                     )
@@ -331,7 +337,7 @@ class HOCBF:
                         + self.lambda_1 * self.lambda_2 * self.lambda_3 * h
                     )
                 elif self.approach.lower() == "taylor":
-                    # Third order Taylor approximation
+                    # IMPORTANT: Third order Taylor approximation
                     cbf_cond = (
                         self.lambda_1 * h
                         + d_h * self.dt
