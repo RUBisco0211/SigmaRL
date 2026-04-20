@@ -1735,6 +1735,7 @@ class ScenarioRoadTraffic(BaseScenario):
                 n_points_shift=1,
             )
 
+    # IMPORTANT: 通用奖励函数
     def reward(self, agent: Agent):
         """
         Issue rewards for the given agent in all envs.

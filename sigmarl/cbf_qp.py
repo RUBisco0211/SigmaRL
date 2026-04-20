@@ -637,6 +637,7 @@ class CBFQP:
 
         return dx_center, dy_center, dpsi_center, ddx_center, ddy_center, ddpsi_center
 
+    # IMPORTANT: 使用 ttcbf 方法
     def solve_decentralized_cbf_qp(self, tensordict):
         self.step += 1
         # Load cbf observation for cbf-qp solving
@@ -776,6 +777,7 @@ class CBFQP:
 
         if prob.status != cp.OPTIMAL:
             print(f"Warning: QP not solved optimally. Status: {prob.status}")
+            # IMPORTANT: 退回到标称控制输入
             u_cbf = self.u_nominal_agent_list[self.agent_idx].flatten()
             self.num_fail += 1
             # If there is no valid solution for the optimization problem, take the original action

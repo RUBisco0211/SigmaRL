@@ -892,7 +892,7 @@ def plot_actions(scenario_type="CPM_entire", steps=None, path=None, show_legend=
 
 
 if __name__ == "__main__":
-    policy_path = "checkpoints/itsc25"
+    policy_path = "outputs/cbf-safety-filter-retrained"
     is_load_out_td = False
 
     print("What do you want to evaluate?")
