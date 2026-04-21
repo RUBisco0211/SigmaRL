@@ -292,26 +292,27 @@ class PseudoDistance:
 
         return result
 
+    # IMPORTANT: 到分段的伪距离：对切向量插值计算可微的伪距离
     def get_pseudo_distance_to_segment(
         self,
         position: torch.Tensor,
-        l: torch.Tensor,
-        t_b: torch.Tensor,
-        t_t: torch.Tensor,
+        l: torch.Tensor,  # 分段长度
+        t_b: torch.Tensor,  # 起始点切向量
+        t_t: torch.Tensor,  # 终点切向量
     ):
         """
         Calculate the pseudo distance of from one point to one line segment.
 
         Args:
-            position (torch.Tensor): Coordinate (x, y) of the position in the local line segment coordiante system.
+            position (torch.Tensor): Coordinate (x, y) of the position in the local line segment coordinate system.
             l (torch.Tensor): Lengths of the line segments
             t_b (torch.Tensor): Tangent vectors at the base points of segments in local coordinates.
             t_t (torch.Tensor): Tangent vectors at the tip points of segments in local coordinates.
 
         Returns:
-            pseudo_distance, direction, lamda: The pseudo distance of the point to the line segment, direction angle in the local coordinate system, projection point on the line segment.
+            pseudo_distance, direction, lambda: The pseudo distance of the point to the line segment, direction angle in the local coordinate system, projection point on the line segment.
         """
-        # Extracpoint coordinate
+        # Extract point coordinate
         x = position[:, :, 0]
         y = position[:, :, 1]
         l = l.unsqueeze(-1)
@@ -328,13 +329,13 @@ class PseudoDistance:
             torch.full_like(t_b[:, :, 0], 1e-8),
         )
 
-        # Find the corresponding point p_lamda on the line segment
+        # Find the corresponding point p_lambda on the line segment
         lambda_factor = (x + y * m_b) / (l - y * (m_t - m_b))
         p_lambda = torch.cat(
             [lambda_factor * l, torch.zeros_like(lambda_factor * l)], dim=-1
         )
 
-        # Calcluate the pseuda distance vector from p_lamda to point position
+        # Calculate the pseudo distance vector from p_lambda to point position
         n_lambda = position.squeeze(-1) - p_lambda
         # Get the magnitude and direction of the pseudo distance vector
         direction = torch.atan2(n_lambda[:, :, 1], n_lambda[:, :, 0])
@@ -346,10 +347,11 @@ class PseudoDistance:
             lambda_factor,
         )
 
+    # IMPORTANT: 计算伪距离
     def get_pseudo_distance(
         self,
         tangent_vector: torch.Tensor,
-        p_vector: torch.Tensor,
+        p_vector: torch.Tensor,  # 折线段点序列
         position: torch.Tensor,
     ):
         """
